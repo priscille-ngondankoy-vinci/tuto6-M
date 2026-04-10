@@ -1,6 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path/path.dart';
 import 'package:provider/provider.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:tuto6/views_models/view_model.dart';
 import 'views/new_post.dart';
 import 'views/post_list.dart';
@@ -26,7 +30,9 @@ final _router = GoRouter(
       )
     ]
 );
+//main.dart
 void main() {
+  initDatabase();
   runApp(const MyApp());
 }
 
@@ -135,4 +141,34 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+}
+Future<Database> initDatabase() async {
+  // Initialize your database here
+  if (kIsWeb) {
+    WidgetsFlutterBinding.ensureInitialized();
+    databaseFactory = databaseFactoryFfiWeb; // sqflite web "hack"
+  }
+
+  var database = await openDatabase(
+    join(await getDatabasesPath(), 'test.db'),
+    version: 1,
+  );
+
+  await database.execute('DROP TABLE IF EXISTS Post');
+  await database.execute(
+    'CREATE TABLE Post(id INTEGER PRIMARY KEY, name TEXT, content TEXT)',
+  );
+  await database.insert('Post', <String, Object?>{
+    'name': 'Post 1',
+    'content': 'Content 1',
+  });
+  await database.insert('Post', <String, Object?>{
+    'name': 'Post 2',
+    'content': 'Content 2',
+  });
+
+  final records = await database.query('Post');
+  print(records);
+
+  return database;
 }
