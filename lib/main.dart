@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:tuto6/views_models/view_model.dart';
 import 'views/new_post.dart';
 import 'views/post_list.dart';
 import 'views/settings.dart';
@@ -33,15 +35,19 @@ class MyApp extends StatelessWidget {
 
   @override
   @override
+  // main.dart
   Widget build(BuildContext context) {
-    return MaterialApp.router(
+    return ChangeNotifierProvider<ThemeViewModel>(
+        create: (context) => ThemeViewModel(),
+        child:  // Use the provider to get the theme
+        MaterialApp.router( //next lines as before
       routerConfig: _router,
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-    );
+    ));
   }
 }
 
