@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:tuto6/services/post_service.dart';
+import 'package:tuto6/views/post_details.dart';
+import 'package:tuto6/views_models/post_view_model.dart';
 import 'package:tuto6/views_models/view_model.dart';
 import 'views/new_post.dart';
 import 'views/post_list.dart';
@@ -26,7 +28,14 @@ final _router = GoRouter(
             GoRoute(
               path: 'settings',
               builder: (context, state) => SettingsScreen(),
-            )
+            ),
+            GoRoute(
+              path: 'posts/:id',
+              builder:
+                  (context, state) => PostDetails(
+                postId: state.pathParameters['id'] ?? '',
+              ),
+            ),
           ]
       )
     ]
@@ -35,29 +44,34 @@ final _router = GoRouter(
 //main.dart
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final databaseProvider = PostService();g
+  final databaseProvider = PostService();
   await databaseProvider.initDatabase();
-  print(databaseProvider.getPosts());
-  runApp(const MyApp());
+  runApp(MyApp(postService: databaseProvider));
 }
+
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final PostService postService;
+
+  const MyApp({super.key, required this.postService});
 
   @override
-  @override
-  // main.dart
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<ThemeViewModel>(
-        create: (context) => ThemeViewModel(),
-        child:  // Use the provider to get the theme
-        MaterialApp.router( //next lines as before
-      routerConfig: _router,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<PostViewModel>(
+          create: (context) => PostViewModel(postService),
+        ),
+        ChangeNotifierProvider<ThemeViewModel>(
+          create: (context) => ThemeViewModel(),
+        ),
+      ],
+      child: MaterialApp.router(
+        title: 'Flutter Demo',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(),
+        routerConfig: _router,
       ),
-    ));
+    );
   }
 }
 
