@@ -5,6 +5,7 @@ import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
+import 'package:tuto6/services/post_service.dart';
 import 'package:tuto6/views_models/view_model.dart';
 import 'views/new_post.dart';
 import 'views/post_list.dart';
@@ -31,11 +32,14 @@ final _router = GoRouter(
     ]
 );
 //main.dart
-void main() {
-  initDatabase();
+//main.dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final databaseProvider = PostService();g
+  await databaseProvider.initDatabase();
+  print(databaseProvider.getPosts());
   runApp(const MyApp());
 }
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
